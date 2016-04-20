@@ -1,0 +1,29 @@
+{
+  "name": "Course",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "idcourse": {
+      "type": "number",
+      "required": true
+    },
+    "km": {
+      "type": "number",
+      "required": true
+    },
+    "participants": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
