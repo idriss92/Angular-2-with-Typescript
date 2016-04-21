@@ -1,4 +1,4 @@
-System.register(['angular2/core', './course.service', './auto-grow.directive'], function(exports_1, context_1) {
+System.register(['angular2/core', './course.service', 'angular2/common', './auto-grow.directive'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['angular2/core', './course.service', './auto-grow.directive'], 
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, course_service_1, auto_grow_directive_1;
+    var core_1, course_service_1, common_1, auto_grow_directive_1;
     var CoursesComponent;
     return {
         setters:[
@@ -20,32 +20,46 @@ System.register(['angular2/core', './course.service', './auto-grow.directive'], 
             function (course_service_1_1) {
                 course_service_1 = course_service_1_1;
             },
+            function (common_1_1) {
+                common_1 = common_1_1;
+            },
             function (auto_grow_directive_1_1) {
                 auto_grow_directive_1 = auto_grow_directive_1_1;
             }],
         execute: function() {
             CoursesComponent = (function () {
-                function CoursesComponent(courseService) {
+                function CoursesComponent(courseService, formBuilder) {
                     this.courseService = courseService;
+                    this.formBuilder = formBuilder;
                     this.title = "The title of courses page";
                 }
                 CoursesComponent.prototype.ngOnInit = function () {
-                    this.getCourses();
+                    this.courses = this.courseService.course$;
+                    this.courseService.loadCourses();
+                    //this.getCourses();
                 };
-                CoursesComponent.prototype.getCourses = function () {
-                    var _this = this;
-                    this.courseService.gesApiCourses()
-                        .subscribe(function (courses) { return _this.courses = courses; }, function (error) { return _this.errorMessage = error; });
+                /*getCourses(): void {
+                            this.courseService.gesApiCourses()
+                                                .subscribe(
+                                                    Courses => this.courses = Courses,
+                                                    error => this.errorMessage = <any> error
+                                                );
+                }*/
+                CoursesComponent.prototype.onSubmit = function () {
+                    //this.courseService.createTodo({ value: this.todoForm.controls.todo.value });
+                };
+                CoursesComponent.prototype.deleteTodo = function (todoId) {
+                    this.courseService.deleteTodo(todoId);
                 };
                 CoursesComponent = __decorate([
                     core_1.Component({
                         selector: 'courses',
-                        template: "\n        <h2>Courses</h2>\n        {{ title }}\n        <input type=\"text\" autoGrow />\n        <ul>\n            <li *ngFor=\"#course of courses\">\n            {{ course }}\n            </li>\n        </ul>\n        ",
+                        template: "\n        <h2>Courses</h2>\n        {{ title }}\n        <div>\n\n        </div>\n        <input type=\"text\" autoGrow />\n        <ul>\n            <li *ngFor=\"#course of courses | async\">\n            {{ course.title }} sur {{ course.km }} km\n            </li>\n        </ul>\n        ",
                         //styleUrls: ['src/css/coursescomponent.css'],        
                         providers: [course_service_1.CourseService],
                         directives: [auto_grow_directive_1.AutoGrowDirective]
                     }), 
-                    __metadata('design:paramtypes', [course_service_1.CourseService])
+                    __metadata('design:paramtypes', [course_service_1.CourseService, common_1.FormBuilder])
                 ], CoursesComponent);
                 return CoursesComponent;
             }());

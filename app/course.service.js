@@ -1,4 +1,4 @@
-System.register(['angular2/core', 'angular2/http', 'rxjs/Observable', 'rxjs/Rx'], function(exports_1, context_1) {
+System.register(['angular2/core', 'angular2/http', 'rxjs/Observable', 'rxjs/add/operator/share', 'rxjs/add/operator/map', 'rxjs/Rx'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -23,20 +23,64 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/Observable', 'rxjs/Rx']
             function (Observable_1_1) {
                 Observable_1 = Observable_1_1;
             },
-            function (_1) {}],
+            function (_1) {},
+            function (_2) {},
+            function (_3) {}],
         execute: function() {
             CourseService = (function () {
                 function CourseService(http) {
+                    var _this = this;
                     this.http = http;
-                    this._courseUrl = '';
+                    this._courseUrl = 'http://0.0.0.0:3000/api/Courses';
+                    this._baseUrl = 'http://0.0.0.0:3000/api/Courses';
+                    this.course$ = new Observable_1.Observable(function (observer) { return _this._courseObserver = observer; }).share();
+                    this._dataStore = { courses: [] };
                 }
+                CourseService.prototype.loadCourses = function () {
+                    var _this = this;
+                    this.http.get(this._baseUrl)
+                        .map(function (response) { return response.json(); })
+                        .subscribe(function (data) {
+                        _this._dataStore.courses = data;
+                        _this._courseObserver.next(_this._dataStore.courses);
+                    }, function (error) { return console.log('could not load courses'); });
+                };
                 CourseService.prototype.gesApiCourses = function () {
-                    return this.http.get(this._courseUrl)
+                    var p = this.http.get(this._courseUrl)
                         .map(function (res) { return res.json(); })
                         .catch(this.handleError);
+                    return p;
                 };
-                CourseService.prototype.getCourses = function () {
-                    return ["course1", "course2", "course3"];
+                CourseService.prototype.createTodo = function (course) {
+                    var _this = this;
+                    this.http.post(this._baseUrl + "/", JSON.stringify(course))
+                        .map(function (response) { return response.json(); }).subscribe(function (data) {
+                        _this._dataStore.courses.push(data);
+                        _this._courseObserver.next(_this._dataStore.courses);
+                    }, function (error) { return console.log('Could not create todo.'); });
+                };
+                CourseService.prototype.updateTodo = function (course) {
+                    var _this = this;
+                    this.http.put(this._baseUrl + "/" + course.idcourse, JSON.stringify(course))
+                        .map(function (response) { return response.json(); }).subscribe(function (data) {
+                        _this._dataStore.courses.forEach(function (todo, i) {
+                            if (course.idcourse === data.idcourse) {
+                                _this._dataStore.courses[i] = data;
+                            }
+                        });
+                        _this._courseObserver.next(_this._dataStore.courses);
+                    }, function (error) { return console.log('Could not update todo.'); });
+                };
+                CourseService.prototype.deleteTodo = function (courseId) {
+                    var _this = this;
+                    this.http.delete(this._baseUrl + "/" + courseId).subscribe(function (response) {
+                        _this._dataStore.courses.forEach(function (t, i) {
+                            if (t.idcourse === courseId) {
+                                _this._dataStore.courses.splice(i, 1);
+                            }
+                        });
+                        _this._courseObserver.next(_this._dataStore.courses);
+                    }, function (error) { return console.log('Could not delete todo.'); });
                 };
                 CourseService.prototype.handleError = function (error) {
                     console.log(error);
